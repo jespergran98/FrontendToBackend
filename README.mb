@@ -1,3 +1,8 @@
+dotnet run in terminal.
+Open: https://hoppscotch.io/
+Paste: http://localhost:5004/api/tasks () (or any of the endpoints below)
+
+
 Created REST API endpoints:
 
 GET /api/tasks - Get all tasks
