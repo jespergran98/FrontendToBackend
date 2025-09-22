@@ -1,0 +1,204 @@
+Created REST API endpoints:
+
+GET /api/tasks - Get all tasks
+GET /api/tasks/{id} - Get specific task
+POST /api/tasks - Create new task
+PUT /api/tasks/{id} - Update task
+DELETE /api/tasks/{id} - Delete task
+GET /api/tasks/stats - Get statistics
+
+
+# TaskFlow - Task Management Application
+
+A full-stack task management application built with ASP.NET Core backend and vanilla JavaScript frontend.
+
+## 🚀 Features
+
+- **Create Tasks**: Add new tasks with a simple text input
+- **Mark Complete**: Toggle task completion status by clicking the checkbox
+- **Delete Tasks**: Remove tasks you no longer need
+- **Filter Tasks**: View all tasks, only pending, or only completed
+- **Search Tasks**: Find specific tasks using the search functionality
+- **Real-time Stats**: See total and completed task counts
+- **Responsive Design**: Works on desktop and mobile devices
+
+## 🏗️ Architecture
+
+### Frontend (Vanilla JavaScript)
+- **TaskManager Class**: Main application controller
+- **Static Files**: HTML, CSS, JavaScript served by ASP.NET Core
+- **REST API Integration**: Communicates with backend via fetch API
+- **Local State Management**: Tasks stored in memory, synced with backend
+
+### Backend (ASP.NET Core Minimal API)
+- **In-Memory Storage**: Tasks stored in a List<TaskItem> (no database required)
+- **RESTful Endpoints**: Standard HTTP methods for CRUD operations
+- **CORS Enabled**: Allows frontend-backend communication
+- **JSON Responses**: Consistent API response format
+
+## 🔧 Core Logic
+
+### Data Flow
+1. **User Interaction** → JavaScript event handlers
+2. **Frontend Validation** → TaskManager methods
+3. **API Calls** → ASP.NET Core endpoints
+4. **Data Processing** → In-memory task list manipulation
+5. **Response** → JSON data back to frontend
+6. **UI Update** → DOM manipulation to reflect changes
+
+### Task Model
+```csharp
+public class TaskItem
+{
+    public int Id { get; set; }           // Unique identifier
+    public string Text { get; set; }      // Task description
+    public bool Completed { get; set; }   // Completion status
+    public DateTime CreatedAt { get; set; } // Creation timestamp
+}
+```
+
+### API Endpoints
+
+| Method | Endpoint | Purpose |
+|--------|----------|---------|
+| GET | `/api/tasks` | Retrieve all tasks |
+| GET | `/api/tasks/{id}` | Get specific task |
+| POST | `/api/tasks` | Create new task |
+| PUT | `/api/tasks/{id}` | Update existing task |
+| DELETE | `/api/tasks/{id}` | Delete task |
+| GET | `/api/tasks/stats` | Get task statistics |
+
+### Frontend State Management
+```javascript
+class TaskManager {
+    constructor() {
+        this.tasks = [];           // Current task list
+        this.currentFilter = 'all'; // Active filter (all/pending/completed)
+        this.searchQuery = '';     // Current search term
+    }
+}
+```
+
+## 🛠️ Setup & Installation
+
+### Prerequisites
+- .NET 9.0 SDK
+- Modern web browser
+
+### Running the Application
+
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd FrontendToBackend
+   ```
+
+2. **Start the backend server**
+   ```bash
+   dotnet run
+   ```
+
+3. **Access the application**
+   - Open your browser to `http://localhost:5004`
+   - Or `https://localhost:7096` for HTTPS
+
+## 🧪 Testing with API Tools
+
+### Using Hoppscotch or Postman
+
+**Base URL**: `http://localhost:5004`
+
+#### Get All Tasks
+```http
+GET /api/tasks
+```
+
+#### Create New Task
+```http
+POST /api/tasks
+Content-Type: application/json
+
+{
+    "text": "Learn ASP.NET Core"
+}
+```
+
+#### Update Task
+```http
+PUT /api/tasks/1
+Content-Type: application/json
+
+{
+    "completed": true
+}
+```
+
+#### Delete Task
+```http
+DELETE /api/tasks/1
+```
+
+## 💡 Key Concepts Demonstrated
+
+### Backend Concepts
+- **Minimal APIs**: Simple endpoint definitions without controllers
+- **Dependency Injection**: Built-in DI container usage
+- **CORS Configuration**: Cross-origin resource sharing setup
+- **Static File Serving**: Hosting frontend files from backend
+- **JSON Serialization**: Automatic request/response serialization
+- **HTTP Status Codes**: Proper REST API responses
+
+### Frontend Concepts
+- **Async/Await**: Modern JavaScript async patterns
+- **Fetch API**: HTTP client for REST API calls
+- **Event Delegation**: Efficient event handling for dynamic content
+- **DOM Manipulation**: Direct DOM updates without frameworks
+- **CSS Animations**: Smooth user interface transitions
+- **Responsive Design**: Mobile-first CSS approach
+
+### Communication Pattern
+```
+Frontend Request → API Endpoint → Data Processing → JSON Response → UI Update
+```
+
+## 📁 Project Structure
+
+```
+FrontendToBackend/
+├── Program.cs              # Backend API configuration
+├── index.html             # Main HTML page
+├── style.css              # Styling and animations
+├── script.js              # Frontend JavaScript logic
+├── appsettings.json       # Application configuration
+└── FrontendToBackend.csproj # Project file
+```
+
+## 🔄 Data Persistence
+
+**Current**: In-memory storage (data lost on server restart)
+**Production Ready**: Replace with Entity Framework + SQL Server/PostgreSQL
+
+### Upgrade Path for Database
+1. Install Entity Framework package
+2. Create DbContext and configure connection string
+3. Replace in-memory List with DbContext operations
+4. Add database migrations
+
+## 🎯 Learning Objectives
+
+This project demonstrates:
+- Full-stack web development fundamentals
+- REST API design and implementation
+- Frontend-backend communication patterns
+- Modern JavaScript async programming
+- ASP.NET Core Minimal API features
+- Responsive web design principles
+
+## 🚀 Future Enhancements
+
+- User authentication and authorization
+- Database integration with Entity Framework
+- Task categories and priority levels
+- Due dates and reminders
+- Real-time updates with SignalR
+- Task sharing and collaboration features
