@@ -25,3 +25,4 @@ C:\Developement\Kodehode\kartlegging uke 3\FrontendToBackend\obj\Debug\net9.0\re
 C:\Developement\Kodehode\kartlegging uke 3\FrontendToBackend\obj\Debug\net9.0\FrontendToBackend.pdb
 C:\Developement\Kodehode\kartlegging uke 3\FrontendToBackend\obj\Debug\net9.0\FrontendToBackend.genruntimeconfig.cache
 C:\Developement\Kodehode\kartlegging uke 3\FrontendToBackend\obj\Debug\net9.0\ref\FrontendToBackend.dll
+C:\Developement\Kodehode\kartlegging uke 3\FrontendToBackend\obj\Debug\net9.0\FrontendToBackend.sourcelink.json
