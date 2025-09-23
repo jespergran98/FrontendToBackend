@@ -13,11 +13,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Developement\\Kodehode\\kartlegging uke 3\\FrontendToBackend\\FrontendToBackend.csproj",
+      "projectUniqueName": "C:\\Developement\\Kodehode\\kartlegging uke 3\\taskFlow\\FrontendToBackend.csproj",
       "projectName": "FrontendToBackend",
-      "projectPath": "C:\\Developement\\Kodehode\\kartlegging uke 3\\FrontendToBackend\\FrontendToBackend.csproj",
+      "projectPath": "C:\\Developement\\Kodehode\\kartlegging uke 3\\taskFlow\\FrontendToBackend.csproj",
       "packagesPath": "C:\\Users\\jespe\\.nuget\\packages\\",
-      "outputPath": "C:\\Developement\\Kodehode\\kartlegging uke 3\\FrontendToBackend\\obj\\",
+      "outputPath": "C:\\Developement\\Kodehode\\kartlegging uke 3\\taskFlow\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\jespe\\AppData\\Roaming\\NuGet\\NuGet.Config"
