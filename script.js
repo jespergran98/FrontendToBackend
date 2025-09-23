@@ -3,6 +3,7 @@ class TaskManager {
         this.tasks = [];
         this.currentFilter = 'all';
         this.searchQuery = '';
+        this.editingTaskId = null;
         // Fixed: Use the ASP.NET Core backend URL instead of frontend origin
         this.baseUrl = 'http://localhost:5004';
         this.init();
@@ -33,12 +34,44 @@ class TaskManager {
 
         // Task list events (using event delegation)
         document.getElementById('tasksList').addEventListener('click', (e) => {
+            const taskItem = e.target.closest('.task-item');
+            if (!taskItem) return;
+            
+            const taskId = parseInt(taskItem.dataset.id);
+            
             if (e.target.classList.contains('task-checkbox')) {
-                const taskId = parseInt(e.target.closest('.task-item').dataset.id);
+                e.preventDefault();
+                e.stopPropagation();
                 this.toggleTask(taskId);
-            } else if (e.target.classList.contains('btn-delete')) {
-                const taskId = parseInt(e.target.closest('.task-item').dataset.id);
+            } else if (e.target.classList.contains('btn-edit') || e.target.closest('.btn-edit')) {
+                e.preventDefault();
+                e.stopPropagation();
+                this.startEdit(taskId);
+            } else if (e.target.classList.contains('btn-save') || e.target.closest('.btn-save')) {
+                e.preventDefault();
+                e.stopPropagation();
+                this.saveEdit(taskId);
+            } else if (e.target.classList.contains('btn-cancel') || e.target.closest('.btn-cancel')) {
+                e.preventDefault();
+                e.stopPropagation();
+                this.cancelEdit();
+            } else if (e.target.classList.contains('btn-delete') || e.target.closest('.btn-delete')) {
+                e.preventDefault();
+                e.stopPropagation();
                 this.deleteTask(taskId);
+            }
+        });
+
+        // Handle Enter and Escape keys for edit mode
+        document.getElementById('tasksList').addEventListener('keydown', (e) => {
+            if (this.editingTaskId && e.target.classList.contains('task-edit-input')) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    this.saveEdit(this.editingTaskId);
+                } else if (e.key === 'Escape') {
+                    e.preventDefault();
+                    this.cancelEdit();
+                }
             }
         });
     }
@@ -95,6 +128,10 @@ class TaskManager {
     }
 
     async toggleTask(id) {
+        if (this.editingTaskId === id) {
+            return; // Don't toggle if currently editing
+        }
+
         this.showLoading(true);
 
         try {
@@ -117,9 +154,73 @@ class TaskManager {
         }
     }
 
-    async deleteTask(id) {
-        if (!confirm('Are you sure you want to delete this task?')) return;
+    startEdit(id) {
+        if (this.editingTaskId) {
+            this.cancelEdit(); // Cancel any existing edit
+        }
+        
+        this.editingTaskId = id;
+        this.render();
+        
+        // Focus on the edit input after render
+        setTimeout(() => {
+            const editInput = document.querySelector('.task-edit-input');
+            if (editInput) {
+                editInput.focus();
+                editInput.select();
+            }
+        }, 50);
+    }
 
+    async saveEdit(id) {
+        const editInput = document.querySelector('.task-edit-input');
+        if (!editInput) return;
+
+        const newText = editInput.value.trim();
+        if (!newText) {
+            this.showNotification('Task text cannot be empty!', 'error');
+            return;
+        }
+
+        this.showLoading(true);
+
+        try {
+            const result = await this.apiCall(`/api/tasks/${id}`, {
+                method: 'PUT',
+                body: JSON.stringify({ text: newText })
+            });
+
+            if (result.success) {
+                this.editingTaskId = null;
+                await this.loadTasks(); // Refresh the task list
+                this.showNotification('Task updated successfully!', 'success');
+            }
+        } catch (error) {
+            // Error already handled in apiCall
+        } finally {
+            this.showLoading(false);
+        }
+    }
+
+    cancelEdit() {
+        this.editingTaskId = null;
+        this.render();
+    }
+
+    async deleteTask(id) {
+        // Prevent multiple simultaneous delete operations
+        if (this.deleteInProgress) {
+            return;
+        }
+
+        const task = this.tasks.find(t => t.id === id);
+        if (!task) return;
+
+        // Show custom confirmation modal
+        const confirmed = await this.showDeleteConfirmation(task.text);
+        if (!confirmed) return;
+
+        this.deleteInProgress = true;
         this.showLoading(true);
 
         try {
@@ -134,8 +235,74 @@ class TaskManager {
         } catch (error) {
             // Error already handled in apiCall
         } finally {
+            this.deleteInProgress = false;
             this.showLoading(false);
         }
+    }
+
+    showDeleteConfirmation(taskText) {
+        return new Promise((resolve) => {
+            // Create modal
+            const modalOverlay = document.createElement('div');
+            modalOverlay.className = 'modal-overlay';
+            modalOverlay.style.display = 'flex';
+
+            modalOverlay.innerHTML = `
+                <div class="modal">
+                    <div class="modal-header">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Delete Task</h3>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are you sure you want to delete this task?</p>
+                        <div class="modal-task-preview">${this.escapeHtml(taskText)}</div>
+                        <p><small>This action cannot be undone.</small></p>
+                    </div>
+                    <div class="modal-actions">
+                        <button class="btn-modal btn-modal-cancel">Cancel</button>
+                        <button class="btn-modal btn-modal-confirm">Delete</button>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modalOverlay);
+
+            // Add event listeners
+            const confirmBtn = modalOverlay.querySelector('.btn-modal-confirm');
+            const cancelBtn = modalOverlay.querySelector('.btn-modal-cancel');
+
+            const cleanup = () => {
+                document.body.removeChild(modalOverlay);
+            };
+
+            confirmBtn.addEventListener('click', () => {
+                cleanup();
+                resolve(true);
+            });
+
+            cancelBtn.addEventListener('click', () => {
+                cleanup();
+                resolve(false);
+            });
+
+            // Close on overlay click
+            modalOverlay.addEventListener('click', (e) => {
+                if (e.target === modalOverlay) {
+                    cleanup();
+                    resolve(false);
+                }
+            });
+
+            // Close on Escape key
+            const escapeHandler = (e) => {
+                if (e.key === 'Escape') {
+                    document.removeEventListener('keydown', escapeHandler);
+                    cleanup();
+                    resolve(false);
+                }
+            };
+            document.addEventListener('keydown', escapeHandler);
+        });
     }
 
     setFilter(filter) {
@@ -193,17 +360,42 @@ class TaskManager {
         tasksList.style.display = 'flex';
         emptyState.style.display = 'none';
 
-        tasksList.innerHTML = filteredTasks.map(task => `
-            <div class="task-item ${task.completed ? 'completed' : ''}" data-id="${task.id}">
-                <div class="task-checkbox ${task.completed ? 'checked' : ''}"></div>
-                <div class="task-content ${task.completed ? 'completed' : ''}">${this.escapeHtml(task.text)}</div>
-                <div class="task-actions">
-                    <button class="btn-delete">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </div>
-            </div>
-        `).join('');
+        tasksList.innerHTML = filteredTasks.map(task => {
+            const isEditing = this.editingTaskId === task.id;
+            const taskClasses = `task-item ${task.completed ? 'completed' : ''} ${isEditing ? 'editing' : ''}`;
+
+            if (isEditing) {
+                return `
+                    <div class="${taskClasses}" data-id="${task.id}">
+                        <div class="task-checkbox ${task.completed ? 'checked' : ''}"></div>
+                        <input type="text" class="task-edit-input" value="${this.escapeHtml(task.text)}" maxlength="100">
+                        <div class="task-actions">
+                            <button class="btn-save" title="Save changes">
+                                <i class="fas fa-check"></i>
+                            </button>
+                            <button class="btn-cancel" title="Cancel editing">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            } else {
+                return `
+                    <div class="${taskClasses}" data-id="${task.id}">
+                        <div class="task-checkbox ${task.completed ? 'checked' : ''}"></div>
+                        <div class="task-content ${task.completed ? 'completed' : ''}">${this.escapeHtml(task.text)}</div>
+                        <div class="task-actions">
+                            <button class="btn-edit" title="Edit task">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn-delete" title="Delete task">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+        }).join('');
     }
 
     escapeHtml(text) {

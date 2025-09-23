@@ -216,6 +216,12 @@ body {
     border-color: #c3e6cb;
 }
 
+.task-item.editing {
+    background: #fff3cd;
+    border-color: #ffeaa7;
+    box-shadow: 0 5px 20px rgba(255, 193, 7, 0.3);
+}
+
 .task-checkbox {
     width: 20px;
     height: 20px;
@@ -224,6 +230,12 @@ body {
     cursor: pointer;
     transition: all 0.3s ease;
     position: relative;
+    flex-shrink: 0;
+}
+
+.task-checkbox:hover {
+    border-color: #28a745;
+    transform: scale(1.1);
 }
 
 .task-checkbox.checked {
@@ -246,6 +258,7 @@ body {
     flex: 1;
     font-size: 1rem;
     line-height: 1.4;
+    word-break: break-word;
 }
 
 .task-content.completed {
@@ -253,9 +266,90 @@ body {
     opacity: 0.7;
 }
 
+.task-edit-input {
+    flex: 1;
+    padding: 12px 15px;
+    border: 2px solid #667eea;
+    border-radius: 8px;
+    font-size: 1rem;
+    background: white;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.task-edit-input:focus {
+    border-color: #5a6fd8;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
 .task-actions {
     display: flex;
     gap: 8px;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.btn-edit {
+    background: #17a2b8;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+}
+
+.btn-edit:hover {
+    background: #138496;
+    transform: scale(1.05);
+}
+
+.btn-save {
+    background: #28a745;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+}
+
+.btn-save:hover {
+    background: #218838;
+    transform: scale(1.05);
+}
+
+.btn-cancel {
+    background: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+}
+
+.btn-cancel:hover {
+    background: #545b62;
+    transform: scale(1.05);
 }
 
 .btn-delete {
@@ -263,15 +357,115 @@ body {
     color: white;
     border: none;
     border-radius: 8px;
-    padding: 8px 12px;
+    padding: 8px 10px;
     cursor: pointer;
     transition: all 0.3s ease;
     font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
 }
 
 .btn-delete:hover {
     background: #c82333;
     transform: scale(1.05);
+}
+
+/* Confirmation Modal Styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    animation: modalFadeIn 0.3s ease;
+}
+
+.modal {
+    background: white;
+    border-radius: 16px;
+    padding: 30px;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: modalSlideIn 0.3s ease;
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    color: #dc3545;
+}
+
+.modal-header i {
+    font-size: 1.5rem;
+    margin-right: 12px;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 1.3rem;
+}
+
+.modal-body {
+    margin-bottom: 25px;
+    color: #666;
+    line-height: 1.5;
+}
+
+.modal-task-preview {
+    background: #f8f9fa;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin: 15px 0;
+    border-left: 4px solid #dc3545;
+    font-weight: 500;
+    word-break: break-word;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+}
+
+.btn-modal {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
+}
+
+.btn-modal-confirm {
+    background: #dc3545;
+    color: white;
+}
+
+.btn-modal-confirm:hover {
+    background: #c82333;
+    transform: translateY(-1px);
+}
+
+.btn-modal-cancel {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-modal-cancel:hover {
+    background: #545b62;
+    transform: translateY(-1px);
 }
 
 .empty-state {
@@ -316,6 +510,7 @@ body {
     margin-bottom: 20px;
 }
 
+/* Animation Keyframes */
 @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
@@ -337,6 +532,34 @@ body {
     }
 }
 
+@keyframes modalFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-50px) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Notification animations */
+@keyframes slideInRight {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideOutRight {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(100%); opacity: 0; }
+}
+
+/* Mobile Responsive */
 @media (max-width: 768px) {
     .container {
         padding: 15px;
@@ -366,6 +589,35 @@ body {
     }
     
     #searchInput:focus {
+        width: 100%;
+    }
+    
+    .task-actions {
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+    
+    .btn-edit,
+    .btn-save,
+    .btn-cancel,
+    .btn-delete {
+        width: 32px;
+        height: 32px;
+        padding: 6px;
+        font-size: 0.8rem;
+    }
+    
+    .modal {
+        margin: 20px;
+        padding: 25px;
+    }
+    
+    .modal-actions {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .btn-modal {
         width: 100%;
     }
 }
