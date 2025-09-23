@@ -5,23 +5,47 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TaskFlow - Your Personal Task Manager</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
+    <div class="background-pattern"></div>
+    <div class="floating-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+        <div class="shape shape-4"></div>
+    </div>
+    
     <div class="container">
         <header class="header">
             <div class="logo">
-                <i class="fas fa-tasks"></i>
-                <h1>TaskFlow</h1>
+                <div class="logo-icon">
+                    <i class="fas fa-tasks"></i>
+                </div>
+                <div class="logo-text">
+                    <h1>TaskFlow</h1>
+                    <span class="tagline">Streamline your productivity</span>
+                </div>
             </div>
             <div class="stats">
                 <div class="stat-item">
-                    <span class="stat-number" id="totalTasks">0</span>
-                    <span class="stat-label">Total Tasks</span>
+                    <div class="stat-icon">
+                        <i class="fas fa-list-check"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-number" id="totalTasks">0</span>
+                        <span class="stat-label">Total Tasks</span>
+                    </div>
                 </div>
                 <div class="stat-item">
-                    <span class="stat-number" id="completedTasks">0</span>
-                    <span class="stat-label">Completed</span>
+                    <div class="stat-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-number" id="completedTasks">0</span>
+                        <span class="stat-label">Completed</span>
+                    </div>
                 </div>
             </div>
         </header>
@@ -29,23 +53,36 @@
         <main class="main-content">
             <div class="add-task-section">
                 <div class="input-group">
-                    <input type="text" id="taskInput" placeholder="What needs to be done?" maxlength="100">
+                    <div class="input-wrapper">
+                        <i class="fas fa-plus input-icon"></i>
+                        <input type="text" id="taskInput" placeholder="What needs to be accomplished today?" maxlength="100">
+                    </div>
                     <button id="addTaskBtn" class="btn-primary">
-                        <i class="fas fa-plus"></i>
-                        Add Task
+                        <span class="btn-text">Add Task</span>
+                        <div class="btn-ripple"></div>
                     </button>
                 </div>
             </div>
 
             <div class="filter-section">
                 <div class="filter-buttons">
-                    <button class="filter-btn active" data-filter="all">All</button>
-                    <button class="filter-btn" data-filter="pending">Pending</button>
-                    <button class="filter-btn" data-filter="completed">Completed</button>
+                    <button class="filter-btn active" data-filter="all">
+                        <i class="fas fa-list"></i>
+                        All
+                    </button>
+                    <button class="filter-btn" data-filter="pending">
+                        <i class="fas fa-clock"></i>
+                        Pending
+                    </button>
+                    <button class="filter-btn" data-filter="completed">
+                        <i class="fas fa-check"></i>
+                        Completed
+                    </button>
                 </div>
                 <div class="search-box">
                     <i class="fas fa-search"></i>
-                    <input type="text" id="searchInput" placeholder="Search tasks...">
+                    <input type="text" id="searchInput" placeholder="Search your tasks...">
+                    <div class="search-highlight"></div>
                 </div>
             </div>
 
@@ -54,16 +91,20 @@
                     <!-- Tasks will be dynamically added here -->
                 </div>
                 <div id="emptyState" class="empty-state">
-                    <i class="fas fa-clipboard-list"></i>
-                    <h3>No tasks yet!</h3>
-                    <p>Add your first task to get started</p>
+                    <div class="empty-icon">
+                        <i class="fas fa-clipboard-list"></i>
+                    </div>
+                    <h3>Ready to get productive?</h3>
+                    <p>Create your first task and start your journey to better organization</p>
                 </div>
             </div>
         </main>
 
         <div class="loading-overlay" id="loadingOverlay">
-            <div class="spinner"></div>
-            <p>Loading...</p>
+            <div class="loading-content">
+                <div class="spinner-modern"></div>
+                <p>Processing your request...</p>
+            </div>
         </div>
     </div>
 

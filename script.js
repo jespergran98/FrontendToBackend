@@ -12,6 +12,190 @@ class TaskManager {
     init() {
         this.bindEvents();
         this.loadTasks();
+        this.addNotificationStyles();
+    }
+
+    addNotificationStyles() {
+        if (!document.getElementById('notificationStyles')) {
+            const styles = document.createElement('style');
+            styles.id = 'notificationStyles';
+            styles.textContent = `
+                .notification {
+                    position: fixed;
+                    top: 24px;
+                    right: 24px;
+                    min-width: 320px;
+                    max-width: 420px;
+                    padding: 20px 24px;
+                    border-radius: 16px;
+                    backdrop-filter: blur(20px);
+                    border: 1px solid rgba(255, 255, 255, 0.15);
+                    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+                    z-index: 2000;
+                    font-weight: 500;
+                    font-size: 0.95rem;
+                    line-height: 1.4;
+                    display: flex;
+                    align-items: flex-start;
+                    gap: 12px;
+                    animation: slideInRight 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+                    transition: all 0.3s ease;
+                }
+
+                .notification.success {
+                    background: rgba(46, 213, 115, 0.15);
+                    border-color: rgba(46, 213, 115, 0.4);
+                    color: #2ed573;
+                }
+
+                .notification.error {
+                    background: rgba(255, 107, 107, 0.15);
+                    border-color: rgba(255, 107, 107, 0.4);
+                    color: #ff6b6b;
+                }
+
+                .notification.info {
+                    background: rgba(102, 126, 234, 0.15);
+                    border-color: rgba(102, 126, 234, 0.4);
+                    color: #667eea;
+                }
+
+                .notification-icon {
+                    width: 20px;
+                    height: 20px;
+                    border-radius: 50%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 0.8rem;
+                    font-weight: 700;
+                    flex-shrink: 0;
+                    margin-top: 1px;
+                }
+
+                .notification.success .notification-icon {
+                    background: rgba(46, 213, 115, 0.2);
+                    color: #2ed573;
+                }
+
+                .notification.error .notification-icon {
+                    background: rgba(255, 107, 107, 0.2);
+                    color: #ff6b6b;
+                }
+
+                .notification.info .notification-icon {
+                    background: rgba(102, 126, 234, 0.2);
+                    color: #667eea;
+                }
+
+                .notification-content {
+                    flex: 1;
+                }
+
+                .notification-title {
+                    font-weight: 600;
+                    margin-bottom: 2px;
+                    font-size: 0.9rem;
+                }
+
+                .notification-message {
+                    opacity: 0.9;
+                    font-size: 0.85rem;
+                }
+
+                .notification-close {
+                    width: 24px;
+                    height: 24px;
+                    border: none;
+                    background: rgba(255, 255, 255, 0.1);
+                    color: currentColor;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 0.7rem;
+                    transition: all 0.2s ease;
+                    flex-shrink: 0;
+                    opacity: 0.6;
+                }
+
+                .notification-close:hover {
+                    background: rgba(255, 255, 255, 0.2);
+                    opacity: 1;
+                    transform: scale(1.1);
+                }
+
+                .notification-progress {
+                    position: absolute;
+                    bottom: 0;
+                    left: 0;
+                    height: 3px;
+                    background: currentColor;
+                    border-radius: 0 0 16px 16px;
+                    opacity: 0.7;
+                    animation: notificationProgress 4s linear;
+                }
+
+                .notification.removing {
+                    animation: slideOutRight 0.3s cubic-bezier(0.4, 0, 1, 1);
+                }
+
+                @keyframes slideInRight {
+                    from { 
+                        transform: translateX(100%) scale(0.9); 
+                        opacity: 0; 
+                    }
+                    to { 
+                        transform: translateX(0) scale(1); 
+                        opacity: 1; 
+                    }
+                }
+
+                @keyframes slideOutRight {
+                    from { 
+                        transform: translateX(0) scale(1); 
+                        opacity: 1; 
+                    }
+                    to { 
+                        transform: translateX(100%) scale(0.9); 
+                        opacity: 0; 
+                    }
+                }
+
+                @keyframes notificationProgress {
+                    from { width: 100%; }
+                    to { width: 0%; }
+                }
+
+                /* Stack notifications */
+                .notification:nth-child(2) {
+                    transform: translateY(80px) scale(0.96);
+                    opacity: 0.8;
+                    z-index: 1999;
+                }
+
+                .notification:nth-child(3) {
+                    transform: translateY(160px) scale(0.92);
+                    opacity: 0.6;
+                    z-index: 1998;
+                }
+
+                /* Mobile responsive */
+                @media (max-width: 480px) {
+                    .notification {
+                        left: 16px;
+                        right: 16px;
+                        min-width: auto;
+                        max-width: none;
+                        margin: 0;
+                        font-size: 0.9rem;
+                        padding: 16px 20px;
+                    }
+                }
+            `;
+            document.head.appendChild(styles);
+        }
     }
 
     bindEvents() {
@@ -93,7 +277,7 @@ class TaskManager {
             return await response.json();
         } catch (error) {
             console.error('API call failed:', error);
-            this.showNotification('Connection error. Please try again.', 'error');
+            this.showNotification('Connection Error', 'Unable to connect to the server. Please check your connection and try again.', 'error');
             throw error;
         }
     }
@@ -103,7 +287,8 @@ class TaskManager {
         const text = input.value.trim();
         
         if (!text) {
-            this.showNotification('Please enter a task!', 'error');
+            this.showNotification('Input Required', 'Please enter a task description before adding.', 'error');
+            input.focus();
             return;
         }
 
@@ -118,7 +303,7 @@ class TaskManager {
             if (result.success) {
                 input.value = '';
                 await this.loadTasks(); // Refresh the task list
-                this.showNotification(result.message || 'Task added successfully!', 'success');
+                this.showNotification('Task Created', result.message || 'Your task has been added successfully!', 'success');
             }
         } catch (error) {
             // Error already handled in apiCall
@@ -145,7 +330,9 @@ class TaskManager {
 
             if (result.success) {
                 await this.loadTasks(); // Refresh the task list
-                this.showNotification(result.message || 'Task updated!', 'success');
+                const statusText = task.completed ? 'Task marked as pending' : 'Task completed!';
+                const icon = task.completed ? 'undo' : 'completed';
+                this.showNotification('Status Updated', statusText, 'success');
             }
         } catch (error) {
             // Error already handled in apiCall
@@ -178,7 +365,7 @@ class TaskManager {
 
         const newText = editInput.value.trim();
         if (!newText) {
-            this.showNotification('Task text cannot be empty!', 'error');
+            this.showNotification('Invalid Input', 'Task description cannot be empty.', 'error');
             return;
         }
 
@@ -193,7 +380,7 @@ class TaskManager {
             if (result.success) {
                 this.editingTaskId = null;
                 await this.loadTasks(); // Refresh the task list
-                this.showNotification('Task updated successfully!', 'success');
+                this.showNotification('Task Updated', 'Your changes have been saved successfully.', 'success');
             }
         } catch (error) {
             // Error already handled in apiCall
@@ -230,7 +417,7 @@ class TaskManager {
 
             if (result.success) {
                 await this.loadTasks(); // Refresh the task list
-                this.showNotification(result.message || 'Task deleted!', 'success');
+                this.showNotification('Task Deleted', 'The task has been permanently removed.', 'info');
             }
         } catch (error) {
             // Error already handled in apiCall
@@ -409,47 +596,100 @@ class TaskManager {
         overlay.style.display = show ? 'flex' : 'none';
     }
 
-    showNotification(message, type = 'info') {
+    showNotification(title, message, type = 'info') {
         // Create notification element
         const notification = document.createElement('div');
-        notification.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 15px 20px;
-            background: ${type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : '#17a2b8'};
-            color: white;
-            border-radius: 8px;
-            font-weight: 500;
-            z-index: 1001;
-            animation: slideInRight 0.3s ease;
+        notification.className = `notification ${type}`;
+        
+        // Icon mapping
+        const icons = {
+            success: '✓',
+            error: '⚠',
+            info: 'i'
+        };
+
+        notification.innerHTML = `
+            <div class="notification-icon">${icons[type] || 'i'}</div>
+            <div class="notification-content">
+                <div class="notification-title">${this.escapeHtml(title)}</div>
+                <div class="notification-message">${this.escapeHtml(message)}</div>
+            </div>
+            <button class="notification-close" title="Close">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="notification-progress"></div>
         `;
-        notification.textContent = message;
 
         document.body.appendChild(notification);
 
-        // Remove after 3 seconds
-        setTimeout(() => {
-            notification.style.animation = 'slideOutRight 0.3s ease';
-            setTimeout(() => notification.remove(), 300);
-        }, 3000);
+        // Close button functionality
+        const closeBtn = notification.querySelector('.notification-close');
+        closeBtn.addEventListener('click', () => this.removeNotification(notification));
 
-        // Add CSS animations if not already added
-        if (!document.getElementById('notificationStyles')) {
-            const styles = document.createElement('style');
-            styles.id = 'notificationStyles';
-            styles.textContent = `
-                @keyframes slideInRight {
-                    from { transform: translateX(100%); opacity: 0; }
-                    to { transform: translateX(0); opacity: 1; }
-                }
-                @keyframes slideOutRight {
-                    from { transform: translateX(0); opacity: 1; }
-                    to { transform: translateX(100%); opacity: 0; }
-                }
-            `;
-            document.head.appendChild(styles);
+        // Auto-remove after 4 seconds
+        const autoRemove = setTimeout(() => {
+            this.removeNotification(notification);
+        }, 4000);
+
+        // Store timeout ID for manual removal
+        notification.autoRemoveTimeout = autoRemove;
+
+        // Hover to pause auto-removal
+        notification.addEventListener('mouseenter', () => {
+            if (notification.autoRemoveTimeout) {
+                clearTimeout(notification.autoRemoveTimeout);
+                notification.autoRemoveTimeout = null;
+            }
+        });
+
+        notification.addEventListener('mouseleave', () => {
+            if (!notification.autoRemoveTimeout) {
+                notification.autoRemoveTimeout = setTimeout(() => {
+                    this.removeNotification(notification);
+                }, 2000);
+            }
+        });
+
+        // Stack existing notifications
+        this.stackNotifications();
+    }
+
+    removeNotification(notification) {
+        if (notification.autoRemoveTimeout) {
+            clearTimeout(notification.autoRemoveTimeout);
         }
+
+        notification.classList.add('removing');
+        
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+            this.stackNotifications();
+        }, 300);
+    }
+
+    stackNotifications() {
+        const notifications = document.querySelectorAll('.notification:not(.removing)');
+        notifications.forEach((notification, index) => {
+            if (index === 0) {
+                notification.style.transform = 'translateX(0) scale(1)';
+                notification.style.opacity = '1';
+                notification.style.zIndex = '2000';
+            } else if (index === 1) {
+                notification.style.transform = 'translateY(80px) scale(0.96)';
+                notification.style.opacity = '0.8';
+                notification.style.zIndex = '1999';
+            } else if (index === 2) {
+                notification.style.transform = 'translateY(160px) scale(0.92)';
+                notification.style.opacity = '0.6';
+                notification.style.zIndex = '1998';
+            } else {
+                // Hide notifications beyond the 3rd
+                notification.style.opacity = '0';
+                notification.style.transform = 'translateY(240px) scale(0.88)';
+            }
+        });
     }
 
     async loadTasks() {
@@ -466,6 +706,7 @@ class TaskManager {
             // Fallback to empty state if API fails
             this.tasks = [];
             this.render();
+            this.showNotification('Loading Failed', 'Unable to load tasks. Please refresh the page.', 'error');
         } finally {
             this.showLoading(false);
         }
